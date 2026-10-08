@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letterdictee</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #475569;
+      font-size: 1rem;
+      margin-bottom: 24px;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── LETTERRASTER ── */
+    .letter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .letter-btn {
+      background: #ffffff;
+      border: 3px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 16px 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      user-select: none;
+    }
+
+    .letter-btn:hover {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+
+    .letter-btn.geselecteerd {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #ffffff;
+    }
+
+    .letter-btn .check {
+      font-size: 1rem;
+      height: 1.2em;
+    }
+
+    /* ── KNOPPEN ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-primary:disabled { background: #a5b4fc; cursor: not-allowed; transform: none; }
+
+    .btn-secondary { background: #e0e7ff; color: #3730a3; }
+    .btn-secondary:hover { background: #c7d2fe; }
+
+    .btn-success { background: #16a34a; color: #fff; font-size: 1.2rem; padding: 18px 36px; }
+    .btn-success:hover { background: #15803d; }
+
+    .btn-next { background: #0891b2; color: #fff; font-size: 1.2rem; padding: 18px 36px; }
+    .btn-next:hover { background: #0e7490; }
+
+    .btn-einde {
+      background: transparent;
+      color: #94a3b8;
+      border: 2px solid #cbd5e1;
+      font-size: 0.95rem;
+      padding: 10px 20px;
+    }
+    .btn-einde:hover { background: #f8fafc; color: #64748b; }
+
+    /* ── VOORTGANG ── */
+    .voortgang {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    /* ── DICTEE-SCHERM ── */
+    .dictee-kaart {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .dictee-instructie {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 20px;
+    }
+
+    .audio-icoon {
+      font-size: 5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ── SCHRIJFLETTERKAART ── */
+    .schrijfkaart {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .schrijfkaart h2 {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .schrijfkaart img {
+      max-width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 16px;
+    }
+
+    /* ── EINDSCHERM ── */
+    .eind-kaart {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .eind-icoon { font-size: 4rem; margin-bottom: 16px; display: block; }
+    .eind-titel { font-size: 1.8rem; font-weight: 700; color: #1e3a8a; margin-bottom: 8px; }
+    .eind-tekst { font-size: 1rem; color: #475569; margin-bottom: 32px; }
+
+    /* ── SELECTIE-ACTIEBALK ── */
+    .actie-balk {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .selectie-info { font-size: 0.9rem; color: #64748b; }
+
+    @media (min-width: 480px) {
+      .btn-row { flex-direction: row; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SCHERM 1: LETTERSELECTIE ── -->
+  <div id="scherm-selectie" class="screen active">
+    <h1>📝 Letterdictee</h1>
+    <p class="subtitle">Klik op de letters die je wil oefenen</p>
+
+    <div class="letter-grid" id="letter-grid"></div>
+
+    <div class="actie-balk">
+      <p class="selectie-info" id="selectie-info">Nog geen letters geselecteerd</p>
+      <button class="btn btn-primary" id="btn-start" onclick="startDictee()" disabled>
+        ▶ Start dictee
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SCHERM 2: DICTEE ── -->
+  <div id="scherm-dictee" class="screen">
+    <h1>📝 Letterdictee</h1>
+    <p class="voortgang" id="voortgang-tekst"></p>
+
+    <div class="dictee-kaart">
+      <p class="dictee-instructie">Luister goed en schrijf de letter</p>
+      <span class="audio-icoon">🔊</span>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="herspeel()">🔁 Beluister opnieuw</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-success" onclick="toonSchrijfletterScherm()">✏️ Klaar</button>
+      <button class="btn btn-einde" onclick="bevestigEinde()">✕ Einde</button>
+    </div>
+  </div>
+
+  <!-- ── SCHERM 3: SCHRIJFLETTER ── -->
+  <div id="scherm-schrijfletter" class="screen">
+    <h1>📝 Letterdictee</h1>
+    <p class="voortgang" id="schrijf-voortgang-tekst"></p>
+
+    <div class="schrijfkaart">
+      <h2>Zo schrijf je de letter</h2>
+      <img id="schrijfletter-img" src="" alt="Schrijfletter" />
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-next" id="btn-volgende" onclick="volgende()">Volgende ▶</button>
+      <button class="btn btn-einde" onclick="bevestigEinde()">✕ Einde</button>
+    </div>
+  </div>
+
+  <!-- ── SCHERM 4: EINDE ── -->
+  <div id="scherm-einde" class="screen">
+    <div class="eind-kaart">
+      <span class="eind-icoon">🎉</span>
+      <p class="eind-titel">Goed gedaan!</p>
+      <p class="eind-tekst" id="eind-tekst"></p>
+      <button class="btn btn-primary" onclick="terugNaarStart()">↩ Opnieuw starten</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const LETTERS = [
+  { id: 'a',  label: 'a',  audio: 'A.m4a',  image: 'img-a.png'  },
+  { id: 'aa', label: 'aa', audio: 'Aa.m4a', image: 'img-aa.png' },
+  { id: 'e',  label: 'e',  audio: 'E.m4a',  image: 'img-e.png'  },
+  { id: 'ee', label: 'ee', audio: 'Ee.m4a', image: 'img-ee.png' },
+  { id: 'l',  label: 'l',  audio: 'L.m4a',  image: 'img-l.png'  },
+  { id: 'm',  label: 'm',  audio: 'M.m4a',  image: 'img-m.png'  },
+  { id: 'n',  label: 'n',  audio: 'N.m4a',  image: 'img-n.png'  },
+  { id: 'o',  label: 'o',  audio: 'O.m4a',  image: 'img-o.png'  },
+  { id: 'oo', label: 'oo', audio: 'Oo.m4a', image: 'img-oo.png' },
+  { id: 'p',  label: 'p',  audio: 'P.m4a',  image: 'img-p.png'  },
+  { id: 'r',  label: 'r',  audio: 'R.m4a',  image: 'img-r.png'  },
+  { id: 's',  label: 's',  audio: 'S.m4a',  image: 'img-s.png'  },
+  { id: 't',  label: 't',  audio: 'T.m4a',  image: 'img-t.png'  },
+  { id: 'u',  label: 'u',  audio: 'U.m4a',  image: 'img-u.png'  },
+  { id: 'uu', label: 'uu', audio: 'Uu.m4a', image: 'img-uu.png' },
+];
+
+let geselecteerd = new Set();
+let wachtrij = [];
+let huidigIndex = 0;
+let huidigAudio = null;
+let totaalGedaan = 0;
+
+function toonScherm(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function bouwLetterRaster() {
+  const grid = document.getElementById('letter-grid');
+  grid.innerHTML = '';
+  LETTERS.forEach(letter => {
+    const btn = document.createElement('button');
+    btn.className = 'letter-btn';
+    btn.id = 'btn-letter-' + letter.id;
+    btn.innerHTML = `<span>${letter.label}</span><span class="check"></span>`;
+    btn.addEventListener('click', () => toggleLetter(letter.id, btn));
+    grid.appendChild(btn);
+  });
+}
+
+function toggleLetter(id, btn) {
+  if (geselecteerd.has(id)) {
+    geselecteerd.delete(id);
+    btn.classList.remove('geselecteerd');
+    btn.querySelector('.check').textContent = '';
+  } else {
+    geselecteerd.add(id);
+    btn.classList.add('geselecteerd');
+    btn.querySelector('.check').textContent = '✓';
+  }
+  updateSelectieInfo();
+}
+
+function updateSelectieInfo() {
+  const n = geselecteerd.size;
+  const info = document.getElementById('selectie-info');
+  const startBtn = document.getElementById('btn-start');
+  if (n === 0) {
+    info.textContent = 'Nog geen letters geselecteerd';
+    startBtn.disabled = true;
+  } else {
+    info.textContent = n === 1 ? '1 letter geselecteerd' : `${n} letters geselecteerd`;
+    startBtn.disabled = false;
+  }
+}
+
+function startDictee() {
+  wachtrij = LETTERS.filter(l => geselecteerd.has(l.id));
+  wachtrij = schud(wachtrij);
+  huidigIndex = 0;
+  totaalGedaan = 0;
+  toonScherm('scherm-dictee');
+  toonHuidigeLetterDictee();
+}
+
+function schud(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function toonHuidigeLetterDictee() {
+  document.getElementById('voortgang-tekst').textContent =
+    totaalGedaan === 0 ? '' : `${totaalGedaan} letter${totaalGedaan === 1 ? '' : 's'} geoefend`;
+  stopAudio();
+  speelAudio(wachtrij[huidigIndex].audio);
+}
+
+function speelAudio(bestand) {
+  huidigAudio = new Audio(bestand);
+  huidigAudio.play().catch(() => {});
+}
+
+function stopAudio() {
+  if (huidigAudio) {
+    huidigAudio.pause();
+    huidigAudio.currentTime = 0;
+    huidigAudio = null;
+  }
+}
+
+function herspeel() {
+  stopAudio();
+  speelAudio(wachtrij[huidigIndex].audio);
+}
+
+function toonSchrijfletterScherm() {
+  stopAudio();
+  const letter = wachtrij[huidigIndex];
+  totaalGedaan++;
+
+  document.getElementById('schrijf-voortgang-tekst').textContent =
+    `${totaalGedaan} letter${totaalGedaan === 1 ? '' : 's'} geoefend`;
+
+  const img = document.getElementById('schrijfletter-img');
+  img.src = letter.image;
+  img.alt = `Schrijfletter ${letter.label}`;
+
+  toonScherm('scherm-schrijfletter');
+}
+
+function volgende() {
+  huidigIndex++;
+  if (huidigIndex >= wachtrij.length) {
+    wachtrij = schud(wachtrij);
+    huidigIndex = 0;
+  }
+  toonScherm('scherm-dictee');
+  toonHuidigeLetterDictee();
+}
+
+function bevestigEinde() {
+  stopAudio();
+  document.getElementById('eind-tekst').textContent =
+    `Je hebt ${totaalGedaan} letter${totaalGedaan === 1 ? '' : 's'} geoefend.`;
+  toonScherm('scherm-einde');
+}
+
+function terugNaarStart() {
+  geselecteerd.forEach(id => {
+    const btn = document.getElementById('btn-letter-' + id);
+    if (btn) {
+      btn.classList.add('geselecteerd');
+      btn.querySelector('.check').textContent = '✓';
+    }
+  });
+  updateSelectieInfo();
+  toonScherm('scherm-selectie');
+}
+
+bouwLetterRaster();
+</script>
+</body>
+</html>
